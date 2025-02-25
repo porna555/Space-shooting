@@ -147,7 +147,7 @@ Transform:
   m_GameObject: {fileID: 472823806}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.8215, y: -0.19833, z: 9.0565}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.3801, y: 1.3801, z: 1.3801}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -218,7 +218,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 1.4512143
+  orthographic size: 2.4905612
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -795,7 +795,7 @@ Transform:
   m_GameObject: {fileID: 1454197964}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 4.52, y: 0, z: 0}
   m_LocalScale: {x: 2.5267107, y: 2.4790368, z: 1.9069514}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -984,10 +984,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6257a041daa2ee4428809e155a4f1849, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 4
-  rotationSpeed: 500
-  player: {fileID: 519420032}
-  offset: {x: 0, y: 0, z: -10}
+  maxForce: 5
+  minForce: 3
+  maxSpeed: 5
+  stopDistance: 0.2
+  decelerationDistance: 3
+  rotationSpeed: 700
+  friction: 2
+  cameraOffset: {x: 0, y: 0, z: -10}
 --- !u!4 &1679813132
 Transform:
   m_ObjectHideFlags: 0
@@ -1075,7 +1079,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!1 &2043119443
 GameObject:
   m_ObjectHideFlags: 0

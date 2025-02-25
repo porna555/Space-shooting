@@ -4,37 +4,72 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float moveSpeed = 5f;  // ความเร็วในการเคลื่อนที่
-    public float rotationSpeed = 700f;  // ความเร็วในการหมุน (degrees per second)
-    public Transform player;  // ตัวแปรที่เก็บตำแหน่งผู้เล่น
-    public Vector3 offset;    // ค่าตำแหน่งที่ห่างจากผู้เล่น (ความสูง/ระยะห่าง)
+    public float maxForce = 15f;  // แรงบังคับสูงสุด
+    public float minForce = 3f;   // แรงบังคับต่ำสุด
+    public float maxSpeed = 6f;   // ความเร็วสูงสุด
+    public float stopDistance = 0.3f;  // ระยะที่ถือว่าถึงเป้าหมาย
+    public float decelerationDistance = 3f;  // ระยะที่เริ่มชะลอความเร็ว
+    public float rotationSpeed = 300f;  // ความเร็วในการหมุน
+    public float friction = 2f; // ค่าความเสียดทาน
 
-    private Vector2 targetPosition;  // ตำแหน่งที่ตัวละครจะไป
+    public Vector3 cameraOffset = new Vector3(0, 0, -10);  // ตำแหน่งกล้อง
+    private Rigidbody2D rb;
+    private Vector2 targetPosition;
+    private bool isMoving = false;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        rb.drag = friction;  // เพิ่มแรงเสียดทานให้ตัวละคร
+    }
 
     void Update()
     {
-        // เช็คว่ามีการคลิกเมาส์หรือไม่
         if (Input.GetMouseButtonDown(0))
         {
-            // แปลงตำแหน่งที่คลิกในโลก 2D ให้เป็นตำแหน่งในเกม
             targetPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            targetPosition = new Vector2(targetPosition.x, targetPosition.y); // เอาแค่ X และ Y
+            isMoving = true;
         }
 
-        // เคลื่อนที่ตัวละครไปยังตำแหน่งที่คลิก
-        if ((Vector2)transform.position != targetPosition)
+        // อัปเดตตำแหน่งกล้องให้ตามตัวละคร
+        Camera.main.transform.position = transform.position + cameraOffset;
+    }
+
+    void FixedUpdate()
+    {
+        if (isMoving)
         {
-            // เคลื่อนที่ไปยังตำแหน่งที่คลิก
-            transform.position = Vector2.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+            float distance = Vector2.Distance(rb.position, targetPosition);
 
-            // คำนวณทิศทางการหมุนไปยังตำแหน่งที่คลิก
-            Vector2 direction = targetPosition - (Vector2)transform.position;
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;  // คำนวณมุมที่หมุน
-            Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, angle));  // สร้างการหมุน
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);  // หมุนตัวละครไปยังทิศทางที่กำหนด
+            // ถ้าถึงจุดหมาย ให้ค่อยๆ หยุด
+            if (distance < stopDistance)
+            {
+                rb.velocity = Vector2.Lerp(rb.velocity, Vector2.zero, 0.2f);
+                if (rb.velocity.magnitude < 0.05f)
+                {
+                    isMoving = false;
+                    rb.velocity = Vector2.zero;
+                }
+                return;
+            }
+
+            // คำนวณแรงบังคับแบบไดนามิก
+            float forceMultiplier = Mathf.Clamp(distance / decelerationDistance, 0.2f, 1f);
+            float currentForce = Mathf.Lerp(minForce, maxForce, forceMultiplier);
+
+            // คำนวณทิศทาง
+            Vector2 direction = (targetPosition - rb.position).normalized;
+
+            // เพิ่มแรงไปยัง Rigidbody2D
+            rb.AddForce(direction * currentForce);
+
+            // จำกัดความเร็วสูงสุด
+            rb.velocity = Vector2.ClampMagnitude(rb.velocity, maxSpeed);
+
+            // ปรับการหมุนของตัวละครอย่างแม่นยำขึ้น
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            Quaternion targetRotation = Quaternion.Euler(0, 0, angle -90);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
         }
-
-        // อัปเดตตำแหน่งของกล้องให้ตามผู้เล่น
-        Camera.main.transform.position = transform.position + offset;
     }
 }

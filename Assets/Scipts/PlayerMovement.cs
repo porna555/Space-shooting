@@ -4,57 +4,37 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float moveSpeed = 5f; // ความเร็วตัวละคร
-    public Transform player;  // อ้างอิงตำแหน่งของผู้เล่น (ใช้สำหรับการติดตามกล้อง)
-    public Vector3 offset; // ระยะห่างระหว่างกล้องและผู้เล่น
-    public float smoothSpeed = 0.125f; // ความเร็วในการติดตาม
+    public float moveSpeed = 5f;  // ความเร็วในการเคลื่อนที่
+    public float rotationSpeed = 700f;  // ความเร็วในการหมุน (degrees per second)
+    public Transform player;  // ตัวแปรที่เก็บตำแหน่งผู้เล่น
+    public Vector3 offset;    // ค่าตำแหน่งที่ห่างจากผู้เล่น (ความสูง/ระยะห่าง)
 
-    private Rigidbody2D rb;
-    private Vector2 movement;
-
-    void Start()
-    {
-        rb = GetComponent<Rigidbody2D>();
-    }
+    private Vector2 targetPosition;  // ตำแหน่งที่ตัวละครจะไป
 
     void Update()
     {
-        // รับค่าการกดปุ่มจากแกน X และ Y
-        movement.x = Input.GetAxisRaw("Horizontal");
-        movement.y = Input.GetAxisRaw("Vertical");
-
-        // ป้องกันการเคลื่อนที่เร็วขึ้นเมื่อเดินแนวทแยง
-        movement = movement.normalized;
-
-        // เช็คว่ากำลังเคลื่อนที่อยู่หรือไม่
-        if (movement != Vector2.zero)
+        // เช็คว่ามีการคลิกเมาส์หรือไม่
+        if (Input.GetMouseButtonDown(0))
         {
-            // คำนวณมุมหมุนโดยใช้ Atan2 และแปลงค่ามุมจากเรเดียนเป็นองศา
-            float angle = Mathf.Atan2(movement.y, movement.x) * Mathf.Rad2Deg;
-
-            // หมุนตัวละครให้หันไปในทิศทางที่เคลื่อนที่ (แกน Z ใช้สำหรับ 2D)
-            transform.rotation = Quaternion.Euler(0, 0, angle - 90);
+            // แปลงตำแหน่งที่คลิกในโลก 2D ให้เป็นตำแหน่งในเกม
+            targetPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            targetPosition = new Vector2(targetPosition.x, targetPosition.y); // เอาแค่ X และ Y
         }
 
-        // เรียกใช้การติดตามกล้อง (ในส่วนของ Update)
-        FollowCamera();
-    }
+        // เคลื่อนที่ตัวละครไปยังตำแหน่งที่คลิก
+        if ((Vector2)transform.position != targetPosition)
+        {
+            // เคลื่อนที่ไปยังตำแหน่งที่คลิก
+            transform.position = Vector2.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
 
-    void FixedUpdate()
-    {
-        // เคลื่อนที่โดยใช้ Rigidbody2D
-        rb.velocity = movement * moveSpeed;
-    }
+            // คำนวณทิศทางการหมุนไปยังตำแหน่งที่คลิก
+            Vector2 direction = targetPosition - (Vector2)transform.position;
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;  // คำนวณมุมที่หมุน
+            Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, angle));  // สร้างการหมุน
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);  // หมุนตัวละครไปยังทิศทางที่กำหนด
+        }
 
-    void FollowCamera()
-    {
-        // คำนวณตำแหน่งที่กล้องควรจะไป
-        Vector3 desiredPosition = transform.position + offset;
-
-        // ทำให้การเคลื่อนที่ของกล้องเรียบขึ้น
-        Vector3 smoothedPosition = Vector3.Lerp(Camera.main.transform.position, desiredPosition, smoothSpeed);
-
-        // อัพเดตตำแหน่งกล้อง
-        Camera.main.transform.position = smoothedPosition;
+        // อัปเดตตำแหน่งของกล้องให้ตามผู้เล่น
+        Camera.main.transform.position = transform.position + offset;
     }
 }

@@ -4,64 +4,48 @@ using UnityEngine;
 
 public class Meteor : MonoBehaviour
 {
-    [SerializeField] private float rotationSpeed = 20f; // ความเร็วในการหมุนของก้อนหิน
-    [SerializeField] private GameObject obstaclePrefab; // พรีแฟบของสิ่งกีดขวาง
-    [SerializeField] private int obstacleCount = 30; // จำนวนสิ่งกีดขวาง
-    [SerializeField] private Vector2 spawnArea = new Vector2(10f, 10f); // ขอบเขตการเกิดของสิ่งกีดขวาง
-    [SerializeField] private float minimumDistance = 2f; // ระยะห่างขั้นต่ำระหว่างสิ่งกีดขวาง
+    public GameObject rockPrefab;  // ก้อนหินที่เราใช้ในการสร้าง
+    public Vector2 spawnAreaMin;   // ขอบล่างซ้ายของพื้นที่ (ต่ำสุด)
+    public Vector2 spawnAreaMax;   // ขอบบนขวาของพื้นที่ (สูงสุด)
+    public int totalRocks = 100;   // จำนวนก้อนหินที่ต้องการสร้าง
+    public float spawnDelay = 0.1f; // เวลาหน่วงระหว่างการสปอนแต่ละก้อนหิน
 
-    private List<Vector2> spawnedPositions = new List<Vector2>(); // เก็บตำแหน่งที่สิ่งกีดขวางถูกสร้างขึ้น
+    private int currentRockCount = 0;  // ตัวนับจำนวนก้อนหินที่ถูกสร้าง
 
-    void Start()
+    private void Start()
     {
-        SpawnObstacles();
+        InvokeRepeating("SpawnRock", 0f, spawnDelay);  // เรียกใช้ฟังก์ชัน SpawnRock ทุกๆ spawnDelay วินาที
     }
 
-    void Update()
+    void SpawnRock()
     {
-        // ทำให้ก้อนหินหมุน
-        transform.Rotate(Vector3.forward * rotationSpeed * Time.deltaTime);
-    }
-
-    void SpawnObstacles()
-    {
-        for (int i = 0; i < obstacleCount; i++)
+        // ตรวจสอบจำนวนก้อนหินที่ถูกสร้างแล้ว
+        if (currentRockCount >= totalRocks)
         {
-            Vector2 spawnPosition = GetRandomSpawnPosition();
-
-            // สร้างสิ่งกีดขวางที่ตำแหน่งที่สุ่มได้
-            Instantiate(obstaclePrefab, spawnPosition, Quaternion.identity);
-            spawnedPositions.Add(spawnPosition); // เพิ่มตำแหน่งที่สร้างไว้ในลิสต์
+            // หยุดการสร้างก้อนหินเมื่อถึงจำนวนที่กำหนด
+            CancelInvoke("SpawnRock");
+            return;
         }
-    }
 
-    // ฟังก์ชันสุ่มตำแหน่งที่ไม่มีการชน
-    Vector2 GetRandomSpawnPosition()
-    {
-        Vector2 spawnPosition;
-        bool positionFound = false;
+        // สุ่มตำแหน่งภายในพื้นที่ 4 เหลี่ยม
+        float randomX = Random.Range(spawnAreaMin.x, spawnAreaMax.x);
+        float randomY = Random.Range(spawnAreaMin.y, spawnAreaMax.y);
+        Vector2 spawnPosition = new Vector2(randomX, randomY);
 
-        do
-        {
-            spawnPosition = new Vector2(
-                Random.Range(-spawnArea.x / 2, spawnArea.x / 2),
-                Random.Range(-spawnArea.y / 2, spawnArea.y / 2)
-            );
+        // สุ่มขนาดของก้อนหินระหว่าง 0.5 ถึง 1.5
+        float randomScale = Random.Range(0.5f, 1.5f);
 
-            positionFound = true;
+        // สร้างก้อนหินใหม่ที่ตำแหน่งที่สุ่มได้
+        GameObject newRock = Instantiate(rockPrefab, spawnPosition, Quaternion.identity);
 
-            // ตรวจสอบระยะห่างจากสิ่งกีดขวางที่ถูกสร้างแล้ว
-            foreach (var pos in spawnedPositions)
-            {
-                if (Vector2.Distance(spawnPosition, pos) < minimumDistance)
-                {
-                    positionFound = false;
-                    break;
-                }
-            }
+        // เปลี่ยนขนาดของก้อนหินตามค่าที่สุ่มได้
+        newRock.transform.localScale = new Vector3(randomScale, randomScale, 1f); // ถ้าเป็น 2D ค่าของ z จะเป็น 1
 
-        } while (!positionFound); // สุ่มใหม่จนกว่าจะเจอตำแหน่งที่ไม่ชน
+        // เพิ่มจำนวนก้อนหินที่ถูกสร้าง
+        currentRockCount++;
 
-        return spawnPosition;
+        // ทำให้ก้อนหินหมุน
+        Rotate_Met rockRotation = newRock.AddComponent<Rotate_Met>();
+        rockRotation.rotationSpeed = Random.Range(50f, 150f);  // กำหนดความเร็วในการหมุนแบบสุ่ม
     }
 }

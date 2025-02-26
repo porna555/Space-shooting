@@ -25,22 +25,11 @@ public class Enemy_Spawn_1 : MonoBehaviour
             // สร้างตำแหน่งสุ่มภายในรัศมีที่กำหนด
             Vector2 spawnPosition = (Vector2)transform.position + Random.insideUnitCircle * spawnRadius;
 
-            // แสดงตำแหน่งที่ศัตรูจะถูกเสก
-            Debug.Log("Spawning enemy #" + i + " at position: " + spawnPosition);
-
             // เสกศัตรูที่ตำแหน่งสุ่ม
             GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
 
             // ตั้งค่า target ของศัตรูเป็นผู้เล่น
-            if (enemy != null)
-            {
-                enemy.GetComponent<Enemy_1>().playerTag = "Player";
-                Debug.Log("Enemy " + i + " spawned successfully!");
-            }
-            else
-            {
-                Debug.LogWarning("Failed to spawn enemy " + i);
-            }
+            enemy.GetComponent<Enemy_1>().playerTag = "Player";
         }
     }
 }

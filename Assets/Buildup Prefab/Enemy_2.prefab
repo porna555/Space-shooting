@@ -176,7 +176,7 @@ MonoBehaviour:
   speed: 3
   bulletPrefab: {fileID: 7228021220764309380, guid: f5ba704ec6a0de94a8d4f7ea9874a39d, type: 3}
   firePoint: {fileID: 6133492761407135202}
-  fireRate: 1
+  fireRate: 0.5
   moveRange: 13
 --- !u!1 &4633235155051043974
 GameObject:

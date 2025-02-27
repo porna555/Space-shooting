@@ -4,16 +4,15 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float maxForce = 20f;  // แรงบังคับสูงสุด
+    public float maxForce = 30f;  // แรงบังคับสูงสุด
     public float minForce = 5f;   // แรงบังคับต่ำสุด
-    public float maxSpeed = 8f;   // ความเร็วสูงสุด
+    public float maxSpeed = 12f;   // ความเร็วสูงสุด
     public float minSpeed = 2f;   // ความเร็วต่ำสุดเมื่อเข้าใกล้
     public float rotationSpeed = 400f;  // ความเร็วในการหมุน
     public float friction = 2f; // ค่าความเสียดทาน
 
     public Vector3 cameraOffset = new Vector3(0, 0, -10);  // ตำแหน่งกล้อง
     private Rigidbody2D rb;
-    private bool isMoving = false;
 
     void Start()
     {
@@ -36,15 +35,14 @@ public class PlayerMovement : MonoBehaviour
         // คำนวณระยะทางจากตัวละครไปยังตำแหน่งเมาส์
         float distance = Vector2.Distance(rb.position, mousePosition);
 
-        // คำนวณอัตราเร่งตามระยะทาง (เมื่อไกลให้เร่ง, เมื่อใกล้ให้ลด)
-        float speedFactor = Mathf.Clamp(distance / 5f, 0.2f, 1f);
-        float currentForce = Mathf.Lerp(minForce, maxForce, speedFactor);
-        float currentMaxSpeed = Mathf.Lerp(minSpeed, maxSpeed, speedFactor);
+        // คำนวณแรงและความเร็วตามระยะทาง
+        float currentForce = Mathf.Lerp(minForce, maxForce, distance / 10f);  // ปรับแรงตามระยะทาง
+        float currentMaxSpeed = Mathf.Lerp(minSpeed, maxSpeed, distance / 10f);  // ปรับความเร็วสูงสุดตามระยะทาง
 
         // เพิ่มแรงไปยัง Rigidbody2D
         rb.AddForce(direction * currentForce);
 
-        // จำกัดความเร็วสูงสุด (ให้สัมพันธ์กับระยะทาง)
+        // จำกัดความเร็วสูงสุด
         rb.velocity = Vector2.ClampMagnitude(rb.velocity, currentMaxSpeed);
 
         // ปรับการหมุนของตัวละครให้ไปในทิศทางของเมาส์

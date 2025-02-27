@@ -15,19 +15,12 @@ public class Enemy_2 : MonoBehaviour
     private Vector2 startPosition; // ตำแหน่งเริ่มต้นของศัตรู
     private float fireTimer; // ตัวจับเวลาเพื่อยิงกระสุน
 
-    private LineRenderer lineRenderer; // สำหรับแสดงเส้น Ray
+    private int bulletCount = 0; // จำนวนกระสุนที่ยิงไปแล้ว
+    private int maxBulletCount = 1000; // จำนวนกระสุนสูงสุดที่สามารถยิงได้
 
     void Start()
     {
         startPosition = transform.position; // บันทึกตำแหน่งเริ่มต้นของศัตรู
-
-        // สร้าง LineRenderer
-        lineRenderer = gameObject.AddComponent<LineRenderer>();
-        lineRenderer.startWidth = 0.05f;
-        lineRenderer.endWidth = 0.05f;
-        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        lineRenderer.startColor = Color.red;
-        lineRenderer.endColor = Color.red;
     }
 
     void Update()
@@ -43,14 +36,20 @@ public class Enemy_2 : MonoBehaviour
 
         // ยิงกระสุนตามเวลา
         fireTimer -= Time.deltaTime;
-        if (fireTimer <= 0f)
+        if (fireTimer <= 0f && bulletCount < maxBulletCount)
         {
             Fire();
             fireTimer = fireRate; // รีเซ็ตเวลา
         }
 
-        // อัปเดตเส้น Ray แสดงการเคลื่อนที่
-        UpdateRay();
+        // แสดงเส้นขอบเขตการเคลื่อนที่ใน Scene View
+        Debug.DrawRay(startPosition, (Vector3)(direction.normalized * moveRange), Color.red);
+
+        // แสดงเส้นแนวยิงของ FirePoint ใน Scene View
+        if (firePoint != null)
+        {
+            Debug.DrawRay(firePoint.position, firePoint.up * 2f, Color.yellow);
+        }
     }
 
     void Fire()
@@ -66,17 +65,12 @@ public class Enemy_2 : MonoBehaviour
                 bulletScript.direction = firePoint.up;
             }
 
-            // แสดงเส้น Ray การยิงกระสุน
+            // เพิ่มจำนวนกระสุนที่ยิงไปแล้ว
+            bulletCount++;
+
+            // แสดงเส้น Ray ของกระสุน
             StartCoroutine(ShowFireRay());
         }
-    }
-
-    void UpdateRay()
-    {
-        // แสดงเส้นทางที่ศัตรูจะเคลื่อนที่ไป
-        Vector3 endPosition = startPosition + (Vector2)(direction.normalized * moveRange);
-        lineRenderer.SetPosition(0, startPosition);
-        lineRenderer.SetPosition(1, endPosition);
     }
 
     IEnumerator ShowFireRay()

@@ -6,6 +6,13 @@ public class Bullet : MonoBehaviour
 {
     public float speed = 10f; // ความเร็วของกระสุน
     public Vector2 direction = Vector2.up; // ทิศทางการยิง
+    public float lifetime = 2f; // เวลาที่กระสุนจะอยู่บนหน้าจอก่อนหายไป
+
+    void Start()
+    {
+        // เรียกฟังก์ชัน DestroyBullet หลังจาก 2 วินาที
+        Invoke("DestroyBullet", lifetime);
+    }
 
     void Update()
     {
@@ -15,6 +22,12 @@ public class Bullet : MonoBehaviour
 
     private void OnBecameInvisible()
     {
-        Destroy(gameObject); // ทำลายกระสุนเมื่อออกนอกจอ
+        DestroyBullet(); // ทำลายกระสุนเมื่อออกนอกจอ
+    }
+
+    // ฟังก์ชันทำลายกระสุน
+    void DestroyBullet()
+    {
+        Destroy(gameObject);
     }
 }

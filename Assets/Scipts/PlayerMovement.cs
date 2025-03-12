@@ -1,18 +1,21 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
     public float maxForce = 30f;  // แรงบังคับสูงสุด
     public float minForce = 5f;   // แรงบังคับต่ำสุด
-    public float maxSpeed = 12f;   // ความเร็วสูงสุด
-    public float minSpeed = 2f;   // ความเร็วต่ำสุดเมื่อเข้าใกล้
+    public float maxSpeed = 12f;  // ความเร็วสูงสุด
+    public float minSpeed = 2f;   // ความเร็วต่ำสุด
     public float rotationSpeed = 400f;  // ความเร็วในการหมุน
     public float friction = 2f; // ค่าความเสียดทาน
 
-    public Vector3 cameraOffset = new Vector3(0, 0, -10);  // ตำแหน่งกล้อง
+    public Vector3 cameraOffset = new Vector3(0, 0, -10); // ตำแหน่งกล้อง
     private Rigidbody2D rb;
+    private Vector2 moveInput;  // อินพุตจาก Left Stick
+    private Vector2 lookInput;  // อินพุตจาก Right Stick
 
     void Start()
     {
@@ -28,26 +31,35 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        // คำนวณตำแหน่งของเมาส์บนโลก
-        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 direction = (mousePosition - rb.position).normalized; // คำนวณทิศทางจากตำแหน่งตัวละครไปยังเมาส์
+        // ตรวจสอบว่ามีอินพุตการเคลื่อนที่หรือไม่
+        if (moveInput.magnitude > 0.1f)
+        {
+            Vector2 direction = moveInput.normalized;
+            float currentForce = Mathf.Lerp(minForce, maxForce, moveInput.magnitude);
+            float currentMaxSpeed = Mathf.Lerp(minSpeed, maxSpeed, moveInput.magnitude);
 
-        // คำนวณระยะทางจากตัวละครไปยังตำแหน่งเมาส์
-        float distance = Vector2.Distance(rb.position, mousePosition);
+            rb.AddForce(direction * currentForce);
+            rb.velocity = Vector2.ClampMagnitude(rb.velocity, currentMaxSpeed);
+        }
 
-        // คำนวณแรงและความเร็วตามระยะทาง
-        float currentForce = Mathf.Lerp(minForce, maxForce, distance / 10f);  // ปรับแรงตามระยะทาง
-        float currentMaxSpeed = Mathf.Lerp(minSpeed, maxSpeed, distance / 10f);  // ปรับความเร็วสูงสุดตามระยะทาง
+        // การหมุนตัวละคร (ใช้ Right Stick)
+        if (lookInput.magnitude > 0.1f)
+        {
+            float angle = Mathf.Atan2(lookInput.y, lookInput.x) * Mathf.Rad2Deg;
+            Quaternion targetRotation = Quaternion.Euler(0, 0, angle - 90);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
+        }
+    }
 
-        // เพิ่มแรงไปยัง Rigidbody2D
-        rb.AddForce(direction * currentForce);
+    // ฟังก์ชันรับค่าการเคลื่อนที่จาก Input System
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        moveInput = context.ReadValue<Vector2>();
+    }
 
-        // จำกัดความเร็วสูงสุด
-        rb.velocity = Vector2.ClampMagnitude(rb.velocity, currentMaxSpeed);
-
-        // ปรับการหมุนของตัวละครให้ไปในทิศทางของเมาส์
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        Quaternion targetRotation = Quaternion.Euler(0, 0, angle -90);
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
+    // ฟังก์ชันรับค่าการหมุนจาก Input System
+    public void OnLook(InputAction.CallbackContext context)
+    {
+        lookInput = context.ReadValue<Vector2>();
     }
 }

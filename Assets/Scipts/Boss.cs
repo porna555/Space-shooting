@@ -4,47 +4,44 @@ using UnityEngine;
 
 public class Boss : MonoBehaviour
 {
-    public float moveSpeed = 5f; // ความเร็วในการเคลื่อนที่
-    public float curveStrength = 2f; // ความแรงของการโค้ง
-    public float moveDistance = 10f; // ระยะการเคลื่อนที่
+    public float majorAxis = 5f; // ความยาวครึ่งแกนใหญ่ของวงรี (แกน X)
+    public float minorAxis = 2f; // ความยาวครึ่งแกนเล็กของวงรี (แกน Y)
+    public float speed = 1f; // ความเร็วในการเคลื่อนที่
 
-    private Vector3 startPosition; // ตำแหน่งเริ่มต้น
-    private bool movingUp = true; // เพื่อบ่งบอกทิศทางการเคลื่อนที่
-    private float timeElapsed = 0f; // ตัวแปรจับเวลาการเคลื่อนที่
-
-    void Start()
-    {
-        startPosition = transform.position; // บันทึกตำแหน่งเริ่มต้น
-    }
+    private float angle = 0f; // ตัวแปรที่ใช้ในการคำนวณตำแหน่งของบอส
+    private bool movingForward = true; // ทิศทางการเคลื่อนที่
 
     void Update()
     {
-        MoveInUPath();
+        MoveInEllipticalPath();
     }
 
-    void MoveInUPath()
+    // ฟังก์ชันที่ทำให้บอสเคลื่อนที่ในรูปแบบครึ่งวงรีไปกลับ
+    void MoveInEllipticalPath()
     {
-        timeElapsed += Time.deltaTime * moveSpeed; // เพิ่มเวลาในการคำนวณการเคลื่อนที่
+        // คำนวณตำแหน่งใหม่บนวงรี โดยใช้ Sin และ Cos
+        float x = majorAxis * Mathf.Cos(angle);
+        float y = minorAxis * Mathf.Sin(angle);
 
-        float horizontalMovement = Mathf.PingPong(timeElapsed, moveDistance); // สร้างการเคลื่อนที่ในแนวนอน
-        float verticalMovement = Mathf.Sin(timeElapsed * curveStrength) * moveDistance; // การเคลื่อนที่แนวตั้งในลักษณะ U
+        // กำหนดตำแหน่งใหม่ของบอส
+        transform.position = new Vector3(x, y, transform.position.z);
 
-        // ถ้าบอสต้องการเคลื่อนที่ไปในแนวตั้งให้แน่ใจว่าอยู่ในทิศทางที่ถูกต้อง
-        if (horizontalMovement >= moveDistance / 2)
+        // เพิ่มหรือลดค่ามุมขึ้นอยู่กับทิศทาง
+        if (movingForward)
         {
-            movingUp = false; // เมื่อเคลื่อนที่ไปข้างหน้า ให้กลับมาลงด้านล่าง
+            angle += speed * Time.deltaTime;
+            if (angle >= Mathf.PI) // ถ้าบอสไปถึงจุดสุดท้ายของครึ่งวงรี
+            {
+                movingForward = false; // เปลี่ยนทิศทางเป็นกลับ
+            }
         }
-        if (horizontalMovement <= 0)
+        else
         {
-            movingUp = true; // เมื่อกลับมาถึงจุดเริ่มต้นให้ขึ้นไปใหม่
+            angle -= speed * Time.deltaTime;
+            if (angle <= 0f) // ถ้าบอสกลับมาถึงจุดเริ่มต้น
+            {
+                movingForward = true; // เปลี่ยนทิศทางเป็นไปข้างหน้า
+            }
         }
-
-        if (!movingUp)
-        {
-            verticalMovement = -verticalMovement; // ถ้ากลับมาด้านล่าง ให้เปลี่ยนทิศทางของการเคลื่อนที่แนวตั้ง
-        }
-
-        // ตั้งค่าตำแหน่งใหม่
-        transform.position = new Vector3(startPosition.x + horizontalMovement, startPosition.y + verticalMovement, transform.position.z);
     }
 }

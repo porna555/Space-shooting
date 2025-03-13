@@ -66,7 +66,7 @@ public class Boss : MonoBehaviour
     void FireBulletWave()
     {
         float angleStep = 260f / (bulletCount - 1); // กระจายเป็นครึ่งวงกลม
-        float startAngle = 0f; // เปลี่ยนจาก -90 เป็น 90 องศา (ยิงลงล่าง)
+        float startAngle = 60f; // เปลี่ยนจาก -90 เป็น 90 องศา (ยิงลงล่าง)
 
         for (int i = 0; i < bulletCount; i++)
         {

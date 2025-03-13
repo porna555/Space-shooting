@@ -65,7 +65,7 @@ public class Boss : MonoBehaviour
     // ฟังก์ชันยิงกระสุนเป็นครึ่งวงกลม
     void FireBulletWave()
     {
-        float angleStep = 240f / (bulletCount - 1); // กระจายเป็นครึ่งวงกลม
+        float angleStep = 260f / (bulletCount - 1); // กระจายเป็นครึ่งวงกลม
         float startAngle = 0f; // เปลี่ยนจาก -90 เป็น 90 องศา (ยิงลงล่าง)
 
         for (int i = 0; i < bulletCount; i++)

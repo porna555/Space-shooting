@@ -155,12 +155,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 439375700b698934f94fbc103d312e7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  majorAxis: 5
+  majorAxis: 3.8
   minorAxis: 2
-  speed: 1
+  speed: 0.5
   bulletPrefab: {fileID: 4298123117347462529, guid: 9ee20ff4e6d309742a7f6d3af6d6f540, type: 3}
   firePoint: {fileID: 1585061870}
-  bulletCount: 10
+  bulletCount: 20
   fireRate: 2
   bulletSpeed: 3
   expandRate: 0.5
@@ -252,7 +252,7 @@ Transform:
   m_GameObject: {fileID: 102255391}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.84, z: 0}
+  m_LocalPosition: {x: 0, y: 1.84, z: -2}
   m_LocalScale: {x: 0.2003925, y: 0.2003925, z: 0.2003925}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -272,8 +272,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitCount: 0
-  changeShapeLimit: 10
-  deathLimit: 30
+  changeShapeLimit: 20
+  deathLimit: 50
   newShape: {fileID: 21300000, guid: c2b1586819df8d045b51da781e9048bf, type: 3}
   deathShape: {fileID: 21300000, guid: 713130211165c82429af9d8a81220957, type: 3}
   bossDefeatedTMP: {fileID: 357572435}
@@ -2120,7 +2120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f94c50bfa994eb14baa1ec9f2702f2d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bulletPrefab: {fileID: 582668976954115088, guid: e9ae81910fe30864b92483bf847c61c5, type: 3}
+  bulletPrefab: {fileID: 7228021220764309380, guid: f5ba704ec6a0de94a8d4f7ea9874a39d, type: 3}
   shootPoint: {fileID: 1045319948}
   bulletSpeed: 10
   fireRate: 0.1

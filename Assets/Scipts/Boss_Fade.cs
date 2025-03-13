@@ -78,7 +78,7 @@ public class Boss_Fade : MonoBehaviour
         if (bossDefeatedTMP != null)
         {
             bossDefeatedTMP.gameObject.SetActive(true);
-            bossDefeatedTMP.text = "YOU WIN!";
+            bossDefeatedTMP.text = "!!! YOU WIN !!! Congratulations, you survived Grade F";
         }
 
         // เปลี่ยนรูปร่างสุดท้ายก่อนบอสหายไป
